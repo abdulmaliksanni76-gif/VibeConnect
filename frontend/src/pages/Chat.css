@@ -1,0 +1,103 @@
+/* Ensure the container is truly full-screen */
+.chat-app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0b141a;
+  overflow: hidden; /* Prevents double scrollbars */
+}
+
+/* This is the key: flex: 1 makes it fill all available space */
+/* .messages-window {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  gap: 12px;
+} */
+
+.messages-window {
+  flex: 1; /* Forces it to fill the available space */
+  overflow-y: auto; /* Forces the internal scroll */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+}
+
+.message-bubble {
+  padding: 8px 12px;
+  border-radius: 10px;
+  max-width: 70%; /* Responsive width */
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  font-weight: bold;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.message-text {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.sent {
+  background-color: #005c4b;
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.received {
+  background-color: #202c33;
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.input-area {
+  padding: 15px;
+  background: #202c33;
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box; /* Ensures padding doesn't push it out of bounds */
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  background: #111b21;
+  color: white;
+  outline: none;
+}
+
+.send-btn {
+  background-color: #00a884; /* WhatsApp Green */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Makes it circular */
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.send-btn:hover {
+  background-color: #029072;
+}
+
+/* Ensure the button doesn't shrink in the flexbox */
+.send-btn {
+  flex-shrink: 0;
+}
