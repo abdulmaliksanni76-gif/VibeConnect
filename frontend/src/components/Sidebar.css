@@ -1,0 +1,44 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.search-bar {
+  padding: 15px;
+  background: #111b21;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  background: #202c33;
+  color: white;
+}
+
+.chat-item {
+  padding: 15px;
+  border-bottom: 1px solid #202c33;
+  cursor: pointer;
+  color: white;
+}
+
+.chat-item:hover {
+  background: #202c33;
+}
+
+.chat-info h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chat-info p {
+  margin: 5px 0 0;
+  font-size: 0.85rem;
+  color: #8696a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

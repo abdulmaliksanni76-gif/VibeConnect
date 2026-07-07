@@ -5,6 +5,7 @@ import Success from './pages/Success';
 import Login from './pages/Login';
 import Chat from './pages/Chat';
 import Layout from './components/Layout';
+import ChatLayout from './components/ChatLayout';
 
 
 
@@ -19,6 +20,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/" element={<Navigate to="/register" />} />
+          {/* <Route path="/" element={<ChatLayout />}>
+            <Route path="chat/:conversationId" element={<Chat />} />
+          </Route> */}
+          <Route path="chat" element={<ChatLayout />}>
+            <Route index element={<div>Select a chat to start</div>} />
+            <Route path=":conversationId" element={<Chat />} />
+          </Route>
         </Routes>
       </div>
     </Router>

@@ -28,19 +28,31 @@
 }
 
 .message-bubble {
-  padding: 8px 12px;
+  max-width: 60%;
+  padding: 10px;
   border-radius: 10px;
-  max-width: 70%; /* Responsive width */
-  color: white;
+  margin: 5px;
   display: flex;
   flex-direction: column;
+}
+
+.message-bubble.sent {
+  align-self: flex-end;
+  background-color: #dcf8c6; /* WhatsApp-style light green */
+  color: black;
+}
+
+.message-bubble.received {
+  align-self: flex-start;
+  background-color: #ffffff;
+  color: black;
 }
 
 .sender-name {
   font-size: 0.75rem;
   font-weight: bold;
-  opacity: 0.7;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  color: #555;
 }
 
 .message-text {
@@ -100,4 +112,45 @@ input {
 /* Ensure the button doesn't shrink in the flexbox */
 .send-btn {
   flex-shrink: 0;
+}
+
+/* Container to handle the alignment of the bubble */
+.message-wrapper {
+  display: flex;
+  margin: 8px 0;
+}
+
+.sent-wrapper {
+  justify-content: flex-end; /* Pushes sent messages to the right */
+}
+
+.received-wrapper {
+  justify-content: flex-start; /* Pushes received messages to the left */
+}
+
+/* The actual bubble styling */
+.message-bubble {
+  max-width: 60%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sent message: Dark Teal/Green */
+.sent {
+  background-color: #005c4b; 
+  color: #e0e0e0;
+}
+
+/* Received message: Dark Grey/Blue */
+.received {
+  background-color: #202c33;
+  color: #ffffff;
+}
+
+.sender-name {
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+  opacity: 0.7;
 }

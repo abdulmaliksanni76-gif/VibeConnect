@@ -1,0 +1,34 @@
+.app-main-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar styling */
+.sidebar-container {
+  width: 350px;
+  border-right: 1px solid #202c33;
+  background-color: #111b21;
+}
+
+/* Chat window styling */
+.chat-window-container {
+  flex: 1;
+  background-color: #0b141a;
+}
+
+/* Mobile Responsive Rules */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .chat-window-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

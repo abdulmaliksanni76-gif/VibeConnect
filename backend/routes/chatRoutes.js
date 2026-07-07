@@ -1,11 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+const auth = require('../middleware/auth');
 
-// Get messages for a chat
-router.get('/:chatId', async (req, res) => {
+// Get all conversations for the logged-in user (For the Sidebar)
+// router.get('/conversations', auth, async (req, res) => {
+//   try {
+//     const conversations = await Conversation.find({ 
+//       participants: req.user.id 
+//     })
+//     .populate('participants', 'username email')
+//     .sort({ updatedAt: -1 });
+//     res.json(conversations);
+//   } catch (err) {
+//     res.status(500).json({ message: "Error fetching conversations" });
+//   }
+// });
+
+router.get('/:conversationId', auth, async (req, res) => {
+    try {
+        const messages = await Message.find({ conversationId: req.params.conversationId })
+            .populate('sender', 'username') // This explicitly requests the 'username' field
+            .sort({ createdAt: 1 });
+            
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ error: "Could not fetch messages" });
+    }
+});
+
+// Get messages for a specific conversation
+router.get('/:chatId', auth, async (req, res) => {
   try {
-    const messages = await Message.find({ conversationId: req.params.chatId }).sort({ createdAt: 1 });
+    const messages = await Message.find({ conversationId: req.params.chatId })
+      .populate('sender', 'username')
+      .sort({ createdAt: 1 });
     res.json(messages);
   } catch (err) {
     res.status(500).json({ message: "Error fetching messages" });
@@ -13,20 +43,81 @@ router.get('/:chatId', async (req, res) => {
 });
 
 // Send a message
-router.post('/send', async (req, res) => {
-  try {
-    const { conversationId, sender, text } = req.body;
-    const newMessage = new Message({ conversationId, sender, text });
+// router.post('/send', auth, async (req, res) => {
+//   try {
+//     const { conversationId, text } = req.body;
+//     // req.user.id comes from auth middleware
+//     const newMessage = new Message({ 
+//       conversationId, 
+//       sender: req.user.id, 
+//       text 
+//     });
+//     await newMessage.save();
+
+//     // Update the conversation's lastMessage and timestamp for the sidebar
+//     await Conversation.findByIdAndUpdate(conversationId, {
+//       lastMessage: text,
+//       updatedAt: Date.now()
+//     });
+
+//     const io = req.app.get('io');
+//     io.to(conversationId).emit("receive_message", newMessage);
+
+//     res.status(201).json(newMessage);
+//   } catch (err) {
+//     res.status(500).json({ message: "Error sending message" });
+//   }
+// });
+
+// router.post('/send', auth, async (req, res) => {
+//     const { conversationId, text } = req.body;
+//     const senderId = req.user.id;
+
+//     const newMessage = new Message({ conversationId, sender: senderId, text });
+//     await newMessage.save();
+
+//     // THIS IS THE KEY: You MUST populate before sending it back!
+//     const populatedMessage = await Message.findById(newMessage._id)
+//         .populate('sender', 'username');
+
+//     const io = req.app.get('io'); 
+//     io.to(conversationId).emit("receive_message", populatedMessage);
+
+//     res.status(200).json(populatedMessage);
+// });
+
+router.post('/send', auth, async (req, res) => {
+    const { conversationId, text } = req.body;
+    const senderId = req.user.id;
+
+    const newMessage = new Message({ conversationId, sender: senderId, text });
     await newMessage.save();
 
-    // Access io from express app and emit to the room
-    const io = req.app.get('io');
-    io.to(conversationId).emit("receive_message", newMessage);
+    const populatedMessage = await Message.findById(newMessage._id)
+        .populate('sender', 'username');
 
-    res.status(201).json(newMessage);
-  } catch (err) {
-    res.status(500).json({ message: "Error sending message" });
-  }
+    // THIS IS THE LINE THAT PUSHES TO THE RECEIVER
+    const io = req.app.get('io'); 
+    io.to(conversationId).emit("receive_message", populatedMessage);
+
+    res.status(200).json(populatedMessage);
+});
+
+router.post('/create', auth, async (req, res) => {
+    const { participantId } = req.body;
+    const currentUserId = req.user.id;
+
+    // Check if chat already exists
+    let chat = await Conversation.findOne({
+        participants: { $all: [currentUserId, participantId] }
+    });
+
+    if (!chat) {
+        chat = await Conversation.create({
+            participants: [currentUserId, participantId]
+        });
+    }
+    res.json(chat);
 });
 
 module.exports = router;
