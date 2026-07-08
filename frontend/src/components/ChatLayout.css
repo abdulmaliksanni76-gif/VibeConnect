@@ -69,6 +69,10 @@
   text-align: center;
 }
 
+.placeholder-content {
+  color: gray;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .sidebar-container { width: 100%; }

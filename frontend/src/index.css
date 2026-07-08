@@ -1,13 +1,20 @@
-:root {
-  /* Colors from your Registration Page */
-  --bg-app: #0b141a;       /* Main chat background */
-  --bg-sidebar: #111b21;    /* Sidebar background */
-  --bg-card: #1e2c34;       /* Input area/bubbles */
+/* :root {
+  --bg-app: #0b141a;       
+  --bg-sidebar: #111b21;  
+  --bg-card: #1e2c34;     
   --border-color: #202c33;
   --text-primary: #e9edef;
   --text-secondary: #8696a0;
-  --accent-blue: #005c4b;   /* Message bubble sent color */
-  --input-bg: #202c33;      /* Input field background */
+  --accent-blue: #005c4b;   
+  --input-bg: #202c33;      
+} */
+
+:root {
+  --primary-color: #4f46e5;    /* Indigo */
+  --bg-dark: #0f172a;         /* Deep Slate */
+  --bubble-sent: #4f46e5;      /* Indigo Sent */
+  --bubble-received: #1e293b;  /* Lighter Slate Received */
+  --text-main: #f8fafc;
 }
 
 body {

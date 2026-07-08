@@ -1,74 +1,97 @@
-/* Update these to match Sidebar.jsx classes */
+/* .sidebar-content {
+  background-color: #111b21;
+  color: #e9edef;
+  height: 100vh;
+  border-right: 1px solid #2a3942;
+  padding: 20px;
+} */
+
 .sidebar-content {
+  /* Updated to match the chat header color for seamless flow */
+  background-color: #1e293b; 
+  color: #f8fafc;
+  height: 100vh;
+  border-right: 1px solid #334155;
+  padding: 20px;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+}
+.search-container {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  align-items: center;
+  /* Slightly lighter slate for contrast */
+  background-color: #334155; 
+  padding: 10px 15px;
+  border-radius: 25px; /* Rounded to match your message input */
+  margin-bottom: 20px;
+  margin-top: -18px;
+}
+/* .search-container {
+  display: flex;
+  align-items: center;
+  background-color: #202c33;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+} */
+
+/* .search-icon { color: #8696a0; margin-right: 12px; }
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
   width: 100%;
-  background-color: var(--bg-sidebar);
+} */
+
+.search-icon { color: #94a3b8; margin-right: 12px; }
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  width: 100%;
+}
+
+.chat-list { display: flex; flex-direction: column; }
+
+.chat-item {
+  padding: 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #2a3942;
+  transition: background-color 0.2s ease;
+}
+
+.chat-item:hover {
+  background-color: #2d3748;
+  border-radius: 7px; 
+}
+
+.chat-info h4 { margin: 0; font-size: 16px; color: #fff; }
+.last-message { margin: 0; font-size: 13px; color: #8696a0; }
+
+.sidebar-logo {
+  /* Increase width to be more visible, height auto maintains the shape */
+  width: 50px; 
+  height: 50px; 
+  object-fit: contain;
+  margin-bottom: 17px;
+  /* margin-top: 25px; */
+  /* Add a little breathing room */
+  /* margin-right: 5px;  */
 }
 
 .sidebar-header {
-  padding: 15px;
   display: flex;
-  gap: 10px;
   align-items: center;
-}
-
-.sidebar-header input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-  background: var(--input-bg);
-  color: white;
-}
-
-.new-chat-btn {
-  background: var(--accent-green);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-}
-
-/* Use your existing chat-list and chat-item styles here */
-.chat-list {
-  flex: 1;
-  overflow-y: auto;
-  width: 100%;
-}
-
-.chat-item {
-  padding: 15px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.chat-item:hover { background: var(--border-color); }
-
-.chat-item {
-  padding: 15px;
-  cursor: pointer;
-  border-bottom: 1px solid #202c33;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-item h4 {
-  margin: 0;
-  color: #e9edef; /* WhatsApp white-ish */
-  font-size: 1rem;
-}
-
-.last-message {
-  margin: 5px 0 0 0;
-  color: #8696a0; /* WhatsApp grey */
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* This ensures the text and logo sit well together */
+  gap: 10px; 
+  padding: 10px 5px;
 }

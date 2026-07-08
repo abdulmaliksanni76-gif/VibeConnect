@@ -31,17 +31,49 @@ router.get('/:chatId', auth, async (req, res) => {
 });
 
 
+// router.post('/send', auth, async (req, res) => {
+//     const { conversationId, text } = req.body;
+//     const senderId = req.user.id;
+
+//     const newMessage = new Message({ conversationId, sender: senderId, text });
+//     await newMessage.save();
+
+//     const populatedMessage = await Message.findById(newMessage._id)
+//         .populate('sender', 'username');
+
+//     // THIS IS THE LINE THAT PUSHES TO THE RECEIVER
+//     const io = req.app.get('io'); 
+//     io.to(conversationId).emit("receive_message", populatedMessage);
+
+//     res.status(200).json(populatedMessage);
+// });
+
 router.post('/send', auth, async (req, res) => {
     const { conversationId, text } = req.body;
     const senderId = req.user.id;
 
+    // 1. Save the new message
     const newMessage = new Message({ conversationId, sender: senderId, text });
     await newMessage.save();
+
+    // 2. CRITICAL: Update the conversation document
+    // This ensures the lastMessage field in MongoDB stays current
+    await Conversation.findByIdAndUpdate(conversationId, {
+        lastMessage: text,
+        updatedAt: new Date() // Updates the timestamp for sorting
+    });
+
+    // Inside your router.post('/send', ...)
+const updatedChat = await Conversation.findByIdAndUpdate(
+    conversationId, 
+    { $set: { lastMessage: text, updatedAt: Date.now() } },
+    { new: true } // Return the updated document
+);
+console.log("Conversation updated:", updatedChat); // Check your server terminal!
 
     const populatedMessage = await Message.findById(newMessage._id)
         .populate('sender', 'username');
 
-    // THIS IS THE LINE THAT PUSHES TO THE RECEIVER
     const io = req.app.get('io'); 
     io.to(conversationId).emit("receive_message", populatedMessage);
 
@@ -73,6 +105,16 @@ router.get('/messages/:chatId', auth, async (req, res) => {
     res.json(messages);
   } catch (err) {
     res.status(500).json({ message: "Error fetching messages" });
+  }
+});
+
+router.get('/info/:conversationId', auth, async (req, res) => {
+  try {
+    const chat = await Conversation.findById(req.params.conversationId)
+      .populate('participants', 'username');
+    res.json(chat);
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
   }
 });
 
