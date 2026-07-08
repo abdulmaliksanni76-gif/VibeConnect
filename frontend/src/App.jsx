@@ -10,25 +10,45 @@ import ChatLayout from './components/ChatLayout';
 
 
 function App() {
-  return (
+//   return (
+//     <Router>
+//       <div className="min-h-screen bg-[#0B1220] flex items-center justify-center">
+//         <Routes>
+//           <Route path="/register" element={<Register />} />
+//           <Route path="/verify" element={<Verify />} />
+//           <Route path="/success" element={<Success />} />
+//           <Route path="/login" element={<Login />} />
+//           <Route path="/chat" element={<Chat />} />
+//           <Route path="/" element={<Navigate to="/register" />} />
+//           {/* <Route path="/" element={<ChatLayout />}>
+//             <Route path="chat/:conversationId" element={<Chat />} />
+//           </Route> */}
+//           <Route path="chat" element={<ChatLayout />}>
+//             <Route index element={<div>Select a chat to start</div>} />
+//             <Route path=":conversationId" element={<Chat />} />
+//             <Route path="chat/:conversationId" element={<Chat />} />
+//           </Route>
+//         </Routes>
+//       </div>
+//     </Router>
+//   );
+// }
+
+return (
     <Router>
-      <div className="min-h-screen bg-[#0B1220] flex items-center justify-center">
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/success" element={<Success />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/" element={<Navigate to="/register" />} />
-          {/* <Route path="/" element={<ChatLayout />}>
-            <Route path="chat/:conversationId" element={<Chat />} />
-          </Route> */}
-          <Route path="chat" element={<ChatLayout />}>
-            <Route index element={<div>Select a chat to start</div>} />
-            <Route path=":conversationId" element={<Chat />} />
-          </Route>
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/login" element={<Login />} />
+        
+        {/* Correct Nested Route: Access via /chat/:conversationId */}
+        <Route path="/chat" element={<ChatLayout />}>
+          <Route path=":conversationId" element={<Chat />} />
+        </Route>
+        
+        <Route path="/" element={<Navigate to="/register" />} />
+      </Routes>
     </Router>
   );
 }

@@ -1,3 +1,22 @@
+:root {
+  /* Colors from your Registration Page */
+  --bg-app: #0b141a;       /* Main chat background */
+  --bg-sidebar: #111b21;    /* Sidebar background */
+  --bg-card: #1e2c34;       /* Input area/bubbles */
+  --border-color: #202c33;
+  --text-primary: #e9edef;
+  --text-secondary: #8696a0;
+  --accent-blue: #005c4b;   /* Message bubble sent color */
+  --input-bg: #202c33;      /* Input field background */
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', sans-serif;
+}
+
 body {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   min-height: 100vh;
@@ -156,4 +175,25 @@ input:-webkit-autofill:focus {
 .chat-container { display: flex; height: 100vh; }
 @media (max-width: 768px) {
   .sidebar { display: none; } /* Or use state to show/hide */
+}
+
+/* Scrollbar Track */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Scrollbar Handle (The part you drag) */
+::-webkit-scrollbar-thumb {
+  background-color: #202c33; /* Matches your chat background */
+  border-radius: 4px;
+}
+
+/* Scrollbar Handle on Hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #374045; /* Slightly lighter for interactivity */
+}
+
+/* Scrollbar Track Background */
+::-webkit-scrollbar-track {
+  background-color: #0b141a; /* Matches your main app background */
 }
