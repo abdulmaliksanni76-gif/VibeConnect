@@ -1,7 +1,7 @@
 .splash-screen {
   height: 100vh;
   width: 100vw;
-  background-color: #0f172a; /* Match your app's bg */
+  background-color: #0f172a; 
   display: flex;
   justify-content: center;
   align-items: center;

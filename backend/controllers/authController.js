@@ -16,7 +16,6 @@ exports.register = async (req, res) => {
         const newUser = new User({ username, email, password: hashedPassword, otp: generatedOtp, otpExpires: Date.now() + 10 * 60 * 1000 });
         await newUser.save();
 
-        // Fail-safe: Try to send email, but don't crash registration if it fails
         try {
             await sendOtpEmail(email, generatedOtp);
         } catch (emailError) {
@@ -45,8 +44,11 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         
-        // CRITICAL: Make sure 'username' is included in this object
-        return res.json({ token, username: user.username }); 
+        return res.json({ 
+            token, 
+            username: user.username, 
+            userId: user._id 
+        }); 
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

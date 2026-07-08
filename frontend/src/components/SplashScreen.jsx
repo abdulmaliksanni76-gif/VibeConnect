@@ -6,13 +6,12 @@ const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onFinish();
-    }, 2000); // Logo stays for 2 seconds
+    }, 2000); 
     return () => clearTimeout(timer);
   }, [onFinish]);
 
   return (
     <div className="splash-screen">
-      {/* <img src="Vibeconnect" alt="Logo" className="splash-logo" /> */}
       <img src={Vibeconnect} alt="Logo" className="splash-logo" />
     </div>
   );

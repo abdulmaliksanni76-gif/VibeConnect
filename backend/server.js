@@ -4,8 +4,7 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
-const Message = require('./models/Message'); // <--- ADD THIS LINE
-
+const Message = require('./models/Message'); 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
@@ -36,7 +35,7 @@ io.on("connection", (socket) => {
     try {
         const newMessage = new Message({ 
             conversationId: data.conversationId,
-            sender: data.senderId, // Ensure you are passing the sender's ID
+            sender: data.senderId, 
             text: data.text 
         });
         await newMessage.save();
@@ -44,7 +43,6 @@ io.on("connection", (socket) => {
         const populatedMessage = await Message.findById(newMessage._id)
             .populate('sender', 'username'); 
         
-        // This broadcasts the message to everyone in the room (including the receiver)
         io.to(data.conversationId).emit("receive_message", populatedMessage);
     } catch (err) {
         console.error("Socket send_message error:", err);

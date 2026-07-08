@@ -1,20 +1,3 @@
-// import { useNavigate } from 'react-router-dom';
-
-// function Success() {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div className="card shadow-sm border-0 rounded-4 p-5" style={{ width: '100%', maxWidth: '450px' }}>
-//       <div className="text-center py-4">
-//         <h3 className="fw-bold text-success">Welcome!</h3>
-//         <p className="text-muted">Your account is active.</p>
-//         <button className="btn btn-primary" onClick={() => navigate('/chat')}>Go to Chat</button>
-//       </div>
-//     </div>
-//   );
-// }
-// export default Success;
-
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
 

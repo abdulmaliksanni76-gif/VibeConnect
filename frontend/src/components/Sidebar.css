@@ -1,13 +1,4 @@
-/* .sidebar-content {
-  background-color: #111b21;
-  color: #e9edef;
-  height: 100vh;
-  border-right: 1px solid #2a3942;
-  padding: 20px;
-} */
-
 .sidebar-content {
-  /* Updated to match the chat header color for seamless flow */
   background-color: #1e293b; 
   color: #f8fafc;
   height: 100vh;
@@ -24,31 +15,12 @@
 .search-container {
   display: flex;
   align-items: center;
-  /* Slightly lighter slate for contrast */
   background-color: #334155; 
   padding: 10px 15px;
-  border-radius: 25px; /* Rounded to match your message input */
+  border-radius: 25px; 
   margin-bottom: 20px;
   margin-top: -18px;
 }
-/* .search-container {
-  display: flex;
-  align-items: center;
-  background-color: #202c33;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-} */
-
-/* .search-icon { color: #8696a0; margin-right: 12px; }
-
-.search-input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
-  width: 100%;
-} */
 
 .search-icon { color: #94a3b8; margin-right: 12px; }
 
@@ -78,20 +50,59 @@
 .last-message { margin: 0; font-size: 13px; color: #8696a0; }
 
 .sidebar-logo {
-  /* Increase width to be more visible, height auto maintains the shape */
   width: 50px; 
   height: 50px; 
   object-fit: contain;
   margin-bottom: 17px;
-  /* margin-top: 25px; */
-  /* Add a little breathing room */
-  /* margin-right: 5px;  */
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  /* This ensures the text and logo sit well together */
   gap: 10px; 
   padding: 10px 5px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 15px;
+  background: #1e293b; 
+}
+
+.header-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo {
+  width: 45px; 
+  height: 45px;
+  object-fit: contain;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  line-height: 1.2;
+  margin: 0;
+  color: white;
+}
+
+.logout-icon-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.logout-icon-btn:hover {
+  background: #334155;
+  color: #ef4444;
 }
