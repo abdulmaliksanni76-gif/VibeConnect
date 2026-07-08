@@ -3,20 +3,9 @@ const router = express.Router();
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const auth = require('../middleware/auth');
+const { getUserConversations } = require('../controllers/chatController');
 
-// Get all conversations for the logged-in user (For the Sidebar)
-// router.get('/conversations', auth, async (req, res) => {
-//   try {
-//     const conversations = await Conversation.find({ 
-//       participants: req.user.id 
-//     })
-//     .populate('participants', 'username email')
-//     .sort({ updatedAt: -1 });
-//     res.json(conversations);
-//   } catch (err) {
-//     res.status(500).json({ message: "Error fetching conversations" });
-//   }
-// });
+router.get('/conversations', auth, getUserConversations);
 
 router.get('/:conversationId', auth, async (req, res) => {
     try {
@@ -30,7 +19,6 @@ router.get('/:conversationId', auth, async (req, res) => {
     }
 });
 
-// Get messages for a specific conversation
 router.get('/:chatId', auth, async (req, res) => {
   try {
     const messages = await Message.find({ conversationId: req.params.chatId })
@@ -42,49 +30,6 @@ router.get('/:chatId', auth, async (req, res) => {
   }
 });
 
-// Send a message
-// router.post('/send', auth, async (req, res) => {
-//   try {
-//     const { conversationId, text } = req.body;
-//     // req.user.id comes from auth middleware
-//     const newMessage = new Message({ 
-//       conversationId, 
-//       sender: req.user.id, 
-//       text 
-//     });
-//     await newMessage.save();
-
-//     // Update the conversation's lastMessage and timestamp for the sidebar
-//     await Conversation.findByIdAndUpdate(conversationId, {
-//       lastMessage: text,
-//       updatedAt: Date.now()
-//     });
-
-//     const io = req.app.get('io');
-//     io.to(conversationId).emit("receive_message", newMessage);
-
-//     res.status(201).json(newMessage);
-//   } catch (err) {
-//     res.status(500).json({ message: "Error sending message" });
-//   }
-// });
-
-// router.post('/send', auth, async (req, res) => {
-//     const { conversationId, text } = req.body;
-//     const senderId = req.user.id;
-
-//     const newMessage = new Message({ conversationId, sender: senderId, text });
-//     await newMessage.save();
-
-//     // THIS IS THE KEY: You MUST populate before sending it back!
-//     const populatedMessage = await Message.findById(newMessage._id)
-//         .populate('sender', 'username');
-
-//     const io = req.app.get('io'); 
-//     io.to(conversationId).emit("receive_message", populatedMessage);
-
-//     res.status(200).json(populatedMessage);
-// });
 
 router.post('/send', auth, async (req, res) => {
     const { conversationId, text } = req.body;
@@ -118,6 +63,17 @@ router.post('/create', auth, async (req, res) => {
         });
     }
     res.json(chat);
+});
+
+router.get('/messages/:chatId', auth, async (req, res) => {
+  try {
+    const messages = await Message.find({ conversationId: req.params.chatId })
+      .populate('sender', 'username')
+      .sort({ createdAt: 1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching messages" });
+  }
 });
 
 module.exports = router;

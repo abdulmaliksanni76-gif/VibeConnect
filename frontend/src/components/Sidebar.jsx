@@ -58,18 +58,11 @@ const Sidebar = () => {
         <input type="text" placeholder="Search email..." onKeyDown={handleSearch} />
       </div>
 
-      <div className="chat-list">
-      {/* {conversations.map((chat) => {
-        // Identify the other participant
-        const currentUsername = localStorage.getItem("username");
-        const otherParticipant = chat.participants.find(
-          (p) => p.username !== currentUsername
-        ); */}
+      {/* <div className="chat-list">
         {conversations.map((chat) => {
-          console.log("Chat Object:", chat); // See the full structure in your console
+          console.log("Chat Object:", chat); 
           const currentUsername = localStorage.getItem("username");
           
-          // LOG the participants to see if they are objects or strings
           console.log("Participants:", chat.participants); 
 
           const otherParticipant = chat.participants?.find(
@@ -83,8 +76,6 @@ const Sidebar = () => {
             onClick={() => navigate(`/chat/${chat._id}`)}
           >
             <div className="chat-info">
-              {/* Display the other participant's name */}
-              {/* <h4>{otherParticipant ? otherParticipant.username : "Unknown User"}</h4> */}
               <h4>{otherParticipant ? otherParticipant.username : "Chat " + chat._id.slice(-4)}</h4>
               <p className="last-message">
                 {chat.lastMessage || "No messages yet"}
@@ -93,7 +84,34 @@ const Sidebar = () => {
           </div>
         );
       })}
-    </div>
+    </div> */}
+    <div className="chat-list">
+  {conversations.map((chat) => {
+    // 1. Get the current logged-in user's ID
+    const currentUserId = localStorage.getItem("userId"); 
+    
+    // 2. Find the other participant (the one whose ID is NOT the current user's ID)
+    const otherParticipant = chat.participants.find(
+      (p) => p._id !== currentUserId
+    );
+
+    return (
+      <div 
+        key={chat._id} 
+        className="chat-item" 
+        onClick={() => navigate(`/chat/${chat._id}`)}
+      >
+        <div className="chat-info">
+          {/* Fallback to 'Unknown' if participant object is missing */}
+          <h4>{otherParticipant ? otherParticipant.username : "Unknown User"}</h4>
+          <p className="last-message">
+            {chat.lastMessage || "No messages yet"}
+          </p>
+        </div>
+      </div>
+    );
+  })}
+</div>
     </div>
   );
 };
