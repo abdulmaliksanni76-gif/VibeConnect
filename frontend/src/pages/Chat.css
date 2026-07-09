@@ -137,3 +137,16 @@
   display: block;             
   text-align: right;          
 }
+
+.msg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.status-icon {
+  display: flex;
+  align-items: center;
+}
