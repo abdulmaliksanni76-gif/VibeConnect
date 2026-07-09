@@ -3,6 +3,7 @@ import { SocketContext } from '../context/SocketContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Send, ArrowLeft } from 'lucide-react';
 import './Chat.css';
+import { formatTimestamp } from '../components/dateUtils';
 
 const Chat = () => {
   const socket = useContext(SocketContext);
@@ -54,6 +55,21 @@ const Chat = () => {
     window.dispatchEvent(new Event('chat_updated'));
   };
 
+  const sortedMessages = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+  const groupMessagesByDate = (messages) => {
+    return messages.reduce((groups, message) => {
+      const date = new Date(message.createdAt).toDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+      return groups;
+    }, {});
+  };
+
+  const groupedMessages = groupMessagesByDate(messages);
+
   return (
     <div className="chat-app-container">
       <div className="chat-header">
@@ -65,11 +81,23 @@ const Chat = () => {
       </div>
       
       <div className="messages-window">
-        {messages.map((m, i) => (
-          <div key={i} className={`message-wrapper ${m.sender.username === localStorage.getItem("username") ? 'sent-wrapper' : 'received-wrapper'}`}>
-            <div className={`message-bubble ${m.sender.username === localStorage.getItem("username") ? 'sent' : 'received'}`}>
-              <p>{m.text}</p>
+        {Object.entries(groupedMessages).map(([date, msgs]) => (
+          <div key={date} className="date-group">
+            
+            <div className="date-divider">
+              <span>{date === new Date().toDateString() ? "Today" : date}</span>
             </div>
+
+            {msgs.map((m, i) => (
+              <div key={i} className={`message-wrapper ${m.sender.username === localStorage.getItem("username") ? 'sent-wrapper' : 'received-wrapper'}`}>
+                <div className={`message-bubble ${m.sender.username === localStorage.getItem("username") ? 'sent' : 'received'}`}>
+                  <p className="m-0">{m.text}</p>
+                  <span className="msg-time">
+                    {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         ))}
         <div ref={messagesEndRef} />

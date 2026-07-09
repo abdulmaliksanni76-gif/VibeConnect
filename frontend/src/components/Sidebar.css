@@ -37,13 +37,17 @@
 .chat-item {
   padding: 15px;
   cursor: pointer;
+  transition: background 0.2s ease;
   border-bottom: 1px solid #2a3942;
-  transition: background-color 0.2s ease;
 }
 
 .chat-item:hover {
   background-color: #2d3748;
-  border-radius: 7px; 
+}
+
+.chat-item.active-chat {
+  background-color: #2d3748; 
+  border-left: 4px solid #4338ca;
 }
 
 .chat-info h4 { margin: 0; font-size: 16px; color: #fff; }
@@ -106,3 +110,13 @@
   background: #334155;
   color: #ef4444;
 }
+
+.text-muted.small {
+  color: #b3b3b3 !important; 
+  font-size: 0.75rem;
+}
+
+.chat-item .text-muted {
+  color: #e0e0e0 !important;
+}
+

@@ -4,10 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { Search, LogOut } from 'lucide-react'; // Added LogOut
 import './Sidebar.css';
 import Vibeconnect from '../assets/Vibe Connect-3.png';
+import { formatTimestamp } from '../components/dateUtils';
+import { useParams } from 'react-router-dom';
 
 const Sidebar = () => {
   const [conversations, setConversations] = useState([]);
   const navigate = useNavigate();
+  const { conversationId } = useParams();
 
   const fetchConversations = async () => {
     const token = localStorage.getItem('token');
@@ -73,25 +76,26 @@ const Sidebar = () => {
         />
       </div>
 
-      <div className="chat-list">
-        {conversations.map((chat) => {
-        const currentUserId = localStorage.getItem("userId"); 
-        
-        const otherParticipant = chat.participants.find((p) => {
-          return String(p._id) !== String(currentUserId);
-        });
+        <div className="chat-list">
+          {conversations.map((chat) => {
+            const currentUserId = localStorage.getItem("userId"); 
+            const otherParticipant = chat.participants.find((p) => String(p._id) !== String(currentUserId));
+            const isActive = chat._id === conversationId;
 
-        return (
-          <div key={chat._id} className="chat-item" onClick={() => navigate(`/chat/${chat._id}`)}>
-            <div className="chat-info">
-              <h4>{otherParticipant ? otherParticipant.username : "Chat"}</h4>
-              <p className="last-message">{chat.lastMessage || "No messages yet"}</p>
-            </div>
-          </div>
-        );
-      })}
+            return (
+              <div key={chat._id} className={`chat-item ${isActive ? 'active-chat' : ''}`} onClick={() => navigate(`/chat/${chat._id}`)}>
+                <div className="chat-info">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h4 className="m-0">{otherParticipant ? otherParticipant.username : "Chat"}</h4>
+                    <span className="text-muted small">{formatTimestamp(chat.updatedAt)}</span>
+                  </div>
+                  <p className="last-message m-0">{chat.lastMessage || "No messages yet"}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 export default Sidebar;
