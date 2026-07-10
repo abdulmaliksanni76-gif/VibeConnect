@@ -1,5 +1,5 @@
 require('dotenv').config();
-const express = require('express');
+// const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -11,6 +11,10 @@ const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 import path from "path";
+import express from "express";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
