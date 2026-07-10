@@ -19,8 +19,10 @@ const Chat = () => {
   const longPressTimer = useRef(null);
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  useEffect(scrollToBottom, [messages]);
 
   const showMenu = (e, messageId, senderId) => {
     if (senderId !== localStorage.getItem("userId")) return;
@@ -38,7 +40,7 @@ const Chat = () => {
     }
   };
 
-  const deleteMessage = async (messageId) => {
+const deleteMessage = async (messageId) => {
   const res = await fetch(`http://localhost:5000/api/chat/message/${messageId}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -46,7 +48,9 @@ const Chat = () => {
   
   if (res.ok) {
     setMessages(prev => prev.filter(m => m._id !== messageId));
-    setMenu({ visible: false, x: 0, y: 0, messageId: null });
+  
+    socket.emit("message_deleted", { messageId, conversationId }); 
+    
     window.dispatchEvent(new Event('chat_updated'));
   }
 };
@@ -105,12 +109,14 @@ const Chat = () => {
     });
     
     if (res.ok) {
-      setMessages(prev => prev.map(m => m._id === editingMessageId ? { ...m, text: input } : m));
-      setEditingMessageId(null);
-      window.dispatchEvent(new Event('chat_updated'));
-    }
+    const updatedMsg = { ...messages.find(m => m._id === editingMessageId), text: input };
+    setMessages(prev => prev.map(m => m._id === editingMessageId ? updatedMsg : m));
+    
+    socket.emit("message_updated", updatedMsg);
+    setEditingMessageId(null);
+    window.dispatchEvent(new Event('chat_updated'));
+  }
   } else {
-    // Normal send
     await fetch('http://localhost:5000/api/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -196,6 +202,17 @@ const handleFileSelect = async (e) => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showFileMenu && !event.target.closest('.plus-btn') && !event.target.closest('.file-menu')) {
+        setShowFileMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showFileMenu]);
+
   return (
     <div className="chat-app-container" onClick={() => setMenu({ ...menu, visible: false })}>
       <div className="chat-header">
@@ -221,12 +238,27 @@ const handleFileSelect = async (e) => {
                 <div className={`message-bubble ${m.sender.username === localStorage.getItem("username") ? 'sent' : 'received'}`}>
                   
                   {m.fileUrl ? (
-                    <img 
-                      src={`http://localhost:5000${m.fileUrl}`} 
-                      alt="attachment" 
-                      className="chat-image"
-                      onClick={() => setSelectedImage(`http://localhost:5000${m.fileUrl}`)}
-                    />
+                    <div className="media-wrapper">
+                      {m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+                        <img 
+                          src={`http://localhost:5000${m.fileUrl}`} 
+                          className="chat-image" 
+                          onClick={() => setSelectedImage(`http://localhost:5000${m.fileUrl}`)}
+                          alt="media" 
+                        />
+                      ) : m.fileUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video 
+                          src={`http://localhost:5000${m.fileUrl}`} 
+                          controls 
+                          className="chat-video" 
+                        />
+                      ) : (
+                        <div className="file-doc" onClick={() => downloadFile(`http://localhost:5000${m.fileUrl}`)}>
+                          <FileText size={40} />
+                          <span className="file-name">{m.text}</span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <p className="m-0">{m.text}</p>
                   )}
@@ -270,17 +302,34 @@ const handleFileSelect = async (e) => {
           </div>
         )}
 
-        {selectedImage && (
+      {selectedImage && (
         <div className="lightbox">
           <div className="lightbox-controls">
             <button className="lightbox-btn" onClick={() => downloadFile(selectedImage)}>
-              <Download size={20} />
+              <Download size={24} />
             </button>
             <button className="lightbox-btn" onClick={() => setSelectedImage(null)}>
-              <X size={20} />
+              <X size={24} />
             </button>
           </div>
-          <img src={selectedImage} alt="Full view" style={{ maxWidth: '90%', maxHeight: '80%' }} />
+
+          {selectedImage.match(/\.(mp4|webm|ogg)$/i) ? (
+            <video src={selectedImage} controls autoPlay className="lightbox-media" />
+          ) : selectedImage.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+            <img src={selectedImage} alt="Full view" className="lightbox-media" />
+          ) : (
+            <div className="lightbox-file-placeholder">
+              <FileText size={80} />
+              <p>File ready for download</p>
+            </div>
+          )}
+        </div>
+      )}
+
+
+      {uploading && (
+        <div className="upload-loader">
+          <span>Uploading...</span>
         </div>
       )}
 
@@ -298,3 +347,4 @@ const handleFileSelect = async (e) => {
   );
 };
 export default Chat;
+

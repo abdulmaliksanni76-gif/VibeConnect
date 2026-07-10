@@ -69,6 +69,47 @@ const Sidebar = () => {
         if (socket) socket.off("refresh_sidebar_signal", fetchConversations);
       };
     }, [socket]);
+
+    useEffect(() => {
+  if (!socket) return;
+
+  const handleUpdate = () => {
+    fetchConversations();
+  };
+  socket.on("receive_message", handleUpdate);
+  socket.on("message_updated", handleUpdate);
+  socket.on("message_deleted", handleUpdate);
+  socket.on("refresh_sidebar", handleUpdate);
+
+  window.addEventListener('chat_updated', handleUpdate);
+
+  return () => {
+    socket.off("receive_message", handleUpdate);
+    socket.off("message_updated", handleUpdate);
+    socket.off("message_deleted", handleUpdate);
+    socket.off("refresh_sidebar", handleUpdate);
+    window.removeEventListener('chat_updated', handleUpdate);
+  };
+}, [socket]);
+
+useEffect(() => {
+  if (!socket) return;
+
+  const refresh = () => {
+    fetchConversations();
+  };
+
+  // Listen for the delete signal
+  socket.on("message_deleted", refresh);
+  socket.on("receive_message", refresh);
+  socket.on("message_updated", refresh);
+
+  return () => {
+    socket.off("message_deleted", refresh);
+    socket.off("receive_message", refresh);
+    socket.off("message_updated", refresh);
+  };
+}, [socket]);
   
 
   return (

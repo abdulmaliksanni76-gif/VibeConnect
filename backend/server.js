@@ -73,6 +73,23 @@ io.on("connection", (socket) => {
     }
     io.emit("get_online_users", Array.from(onlineUsers.keys()));
   });
+
+  socket.on("message_updated", (updatedMsg) => {
+  // Broadcast to other users in the chat
+  io.to(updatedMsg.conversationId).emit("message_updated", updatedMsg);
+  // Emit a signal for the sidebar specifically if needed
+  io.emit("refresh_sidebar"); 
+});
+
+socket.on("message_deleted", (data) => {
+  // data should contain { messageId, conversationId }
+  // Broadcast to the specific conversation so the Chat component updates
+  io.to(data.conversationId).emit("message_deleted", data.messageId);
+  
+  // Refresh the sidebar for everyone involved
+  io.emit("refresh_sidebar");
+});
+
 });
 
 
