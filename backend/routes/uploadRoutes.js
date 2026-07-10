@@ -15,4 +15,5 @@ router.post('/upload', auth, upload.single('file'), (req, res) => {
     });
 });
 
-module.exports = router;
+// module.exports = router;
+export default router;
