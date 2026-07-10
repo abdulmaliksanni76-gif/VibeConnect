@@ -16,7 +16,7 @@ const Sidebar = () => {
   const fetchConversations = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5000/api/chat/conversations', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/conversations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const sorted = res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
@@ -29,10 +29,10 @@ const Sidebar = () => {
   const handleSearch = async (e) => {
     if (e.key === 'Enter') {
       try {
-        const userRes = await axios.get(`http://localhost:5000/api/users/find?email=${e.target.value.trim()}`, {
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/find?email=${e.target.value.trim()}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        const chatRes = await axios.post('http://localhost:5000/api/chat/create', 
+        const chatRes = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/create`, 
           { participantId: userRes.data._id },
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );

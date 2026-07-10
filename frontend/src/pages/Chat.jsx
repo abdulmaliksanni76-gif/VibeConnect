@@ -48,7 +48,7 @@ const Chat = () => {
   };
 
 const deleteMessage = async (messageId) => {
-  const res = await fetch(`http://localhost:5000/api/chat/message/${messageId}`, {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/message/${messageId}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
   });
@@ -63,11 +63,11 @@ const deleteMessage = async (messageId) => {
 };
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/chat/messages/${conversationId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/chat/messages/${conversationId}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
     }).then(res => res.json()).then(setMessages);
 
-    fetch(`http://localhost:5000/api/chat/info/${conversationId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/chat/info/${conversationId}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
     }).then(res => res.json()).then(setChatData);
 
@@ -109,13 +109,13 @@ const deleteMessage = async (messageId) => {
 //   const fetchData = async () => {
 //     try {
 //       // Your existing fetch logic here
-//       const msgRes = await fetch(`http://localhost:5000/api/chat/messages/${conversationId}`, {
+//       const msgRes = await fetch(`${import.meta.env.vite_api_url}/api/chat/messages/${conversationId}`, {
 //         headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
 //       });
 //       const msgs = await msgRes.json();
 //       setMessages(msgs);
 
-//       const infoRes = await fetch(`http://localhost:5000/api/chat/info/${conversationId}`, {
+//       const infoRes = await fetch(`${import.meta.env.vite_api_url}/api/chat/info/${conversationId}`, {
 //         headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
 //       });
 //       const info = await infoRes.json();
@@ -144,7 +144,7 @@ const deleteMessage = async (messageId) => {
 
 const sendMessage = async (text = null, fileData = null) => {
   if (editingMessageId) {
-    const res = await fetch(`http://localhost:5000/api/chat/message/${editingMessageId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/message/${editingMessageId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       body: JSON.stringify({ text: text || input })
@@ -192,7 +192,7 @@ const handleFileUpload = async (file) => {
   formData.append('file', file);
   
   try {
-    const res = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/upload`, formData, {
       headers: { 
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data' // Important for file uploads
@@ -214,7 +214,7 @@ const handleFileSelect = async (e) => {
   formData.append('file', file);
 
   try {
-    const res = await fetch('http://localhost:5000/api/chat/upload', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/upload`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       body: formData
@@ -222,7 +222,7 @@ const handleFileSelect = async (e) => {
 
     if (res.ok) {
       const data = await res.json();
-      await fetch('http://localhost:5000/api/chat/send', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/chat/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: JSON.stringify({ 
@@ -332,23 +332,23 @@ const stopRecording = () => {
                     <div className="media-wrapper">
                       {m.fileUrl && m.fileType === 'audio' ? (
                         <div className={`message-bubble ${m.sender === localStorage.getItem("userId") ? 'sent' : 'received'}`}>
-                          <AudioPlayer url={`http://localhost:5000${m.fileUrl.startsWith('/') ? '' : '/'}${m.fileUrl}`} />
+                          <AudioPlayer url={`${import.meta.env.VITE_API_URL}${m.fileUrl.startsWith('/') ? '' : '/'}${m.fileUrl}`} />
                         </div>
                       ) : m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
                         <img 
-                          src={`http://localhost:5000${m.fileUrl}`} 
+                          src={`${import.meta.env.VITE_API_URL}${m.fileUrl}`} 
                           className="chat-image" 
-                          onClick={() => setSelectedImage(`http://localhost:5000${m.fileUrl}`)}
+                          onClick={() => setSelectedImage(`${import.meta.env.VITE_API_URL}${m.fileUrl}`)}
                           alt="media" 
                         />
                       ) : m.fileUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                         <video 
-                          src={`http://localhost:5000${m.fileUrl}`} 
+                          src={`${import.meta.env.VITE_API_URL}${m.fileUrl}`} 
                           controls 
                           className="chat-video" 
                         />
                       ) : (
-                        <div className="file-doc" onClick={() => downloadFile(`http://localhost:5000${m.fileUrl}`)}>
+                        <div className="file-doc" onClick={() => downloadFile(`${import.meta.env.vite_api_url}${m.fileUrl}`)}>
                           <FileText size={40} />
                           <span className="file-name">{m.text}</span>
                         </div>
@@ -529,7 +529,7 @@ export default Chat;
 //   };
 
 //   const deleteMessage = async (messageId) => {
-//     const res = await fetch(`http://localhost:5000/api/chat/message/${messageId}`, {
+//     const res = await fetch(`${import.meta.env.vite_api_url}/api/chat/message/${messageId}`, {
 //       method: 'DELETE',
 //       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
 //     });
@@ -546,14 +546,14 @@ export default Chat;
 //   //   const fetchData = () => {
 //   //     const token = localStorage.getItem("token");
       
-//   //     fetch(`http://localhost:5000/api/chat/messages/${conversationId}`, { 
+//   //     fetch(`${import.meta.env.vite_api_url}/api/chat/messages/${conversationId}`, { 
 //   //       headers: { 'Authorization': `Bearer ${token}` } 
 //   //     })
 //   //     .then(res => res.json())
 //   //     .then(data => setMessages(Array.isArray(data) ? data : []))
 //   //     .catch(err => console.error(err));
       
-//   //     fetch(`http://localhost:5000/api/chat/info/${conversationId}`, { 
+//   //     fetch(`${import.meta.env.vite_api_url}/api/chat/info/${conversationId}`, { 
 //   //       headers: { 'Authorization': `Bearer ${token}` } 
 //   //     })
 //   //     .then(res => res.json())
@@ -598,10 +598,10 @@ export default Chat;
 // //     try {
 // //       const token = localStorage.getItem("token");
 // //       const [msgRes, infoRes] = await Promise.all([
-// //         fetch(`http://localhost:5000/api/chat/messages/${conversationId}`, { 
+// //         fetch(`${import.meta.env.vite_api_url}/api/chat/messages/${conversationId}`, { 
 // //           headers: { 'Authorization': `Bearer ${token}` } 
 // //         }),
-// //         fetch(`http://localhost:5000/api/chat/info/${conversationId}`, { 
+// //         fetch(`${import.meta.env.vite_api_url}/api/chat/info/${conversationId}`, { 
 // //           headers: { 'Authorization': `Bearer ${token}` } 
 // //         })
 // //       ]);
@@ -629,8 +629,8 @@ export default Chat;
 //       const headers = { 'Authorization': `Bearer ${token}` };
 
 //       const [msgRes, infoRes] = await Promise.all([
-//         fetch(`http://localhost:5000/api/chat/messages/${conversationId}`, { headers }),
-//         fetch(`http://localhost:5000/api/chat/info/${conversationId}`, { headers })
+//         fetch(`${import.meta.env.vite_api_url}/api/chat/messages/${conversationId}`, { headers }),
+//         fetch(`${import.meta.env.vite_api_url}/api/chat/info/${conversationId}`, { headers })
 //       ]);
 
 //       if (msgRes.ok) {
@@ -656,7 +656,7 @@ export default Chat;
 
 //   const sendMessage = async (text = null, fileData = null) => {
 //     if (editingMessageId) {
-//       const res = await fetch(`http://localhost:5000/api/chat/message/${editingMessageId}`, {
+//       const res = await fetch(`${import.meta.env.vite_api_url}/api/chat/message/${editingMessageId}`, {
 //         method: 'PUT',
 //         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
 //         body: JSON.stringify({ text: text || input })
@@ -706,7 +706,7 @@ export default Chat;
 //     const formData = new FormData();
 //     formData.append('file', file);
 //     try {
-//       const res = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+//       const res = await axios.post('${import.meta.env.vite_api_url}/api/chat/upload', formData, {
 //         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'multipart/form-data' }
 //       });
 //       await sendMessage(null, { fileUrl: res.data.filePath, fileType: 'audio' });
@@ -721,14 +721,14 @@ export default Chat;
 //     const formData = new FormData();
 //     formData.append('file', file);
 //     try {
-//       const res = await fetch('http://localhost:5000/api/chat/upload', {
+//       const res = await fetch('${import.meta.env.vite_api_url}/api/chat/upload', {
 //         method: 'POST',
 //         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
 //         body: formData
 //       });
 //       if (res.ok) {
 //         const data = await res.json();
-//         await fetch('http://localhost:5000/api/chat/send', {
+//         await fetch('${import.meta.env.vite_api_url}/api/chat/send', {
 //           method: 'POST',
 //           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
 //           body: JSON.stringify({ conversationId, text: file.name, fileUrl: data.filePath })
@@ -800,13 +800,13 @@ export default Chat;
 //                   {m.fileUrl ? (
 //                     <div className="media-wrapper">
 //                       {m.fileType === 'audio' ? (
-//                         <AudioPlayer url={`http://localhost:5000${m.fileUrl}`} />
+//                         <AudioPlayer url={`${import.meta.env.vite_api_url}${m.fileUrl}`} />
 //                       ) : m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-//                         <img src={`http://localhost:5000${m.fileUrl}`} className="chat-image" onClick={() => setSelectedImage(`http://localhost:5000${m.fileUrl}`)} alt="media" />
+//                         <img src={`${import.meta.env.vite_api_url}${m.fileUrl}`} className="chat-image" onClick={() => setSelectedImage(`${import.meta.env.vite_api_url}${m.fileUrl}`)} alt="media" />
 //                       ) : m.fileUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-//                         <video src={`http://localhost:5000${m.fileUrl}`} controls className="chat-video" />
+//                         <video src={`${import.meta.env.vite_api_url}${m.fileUrl}`} controls className="chat-video" />
 //                       ) : (
-//                         <div className="file-doc" onClick={() => downloadFile(`http://localhost:5000${m.fileUrl}`)}>
+//                         <div className="file-doc" onClick={() => downloadFile(`${import.meta.env.vite_api_url}${m.fileUrl}`)}>
 //                           <FileText size={40} /><span className="file-name">{m.text}</span>
 //                         </div>
 //                       )}

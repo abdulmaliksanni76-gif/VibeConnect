@@ -9,7 +9,7 @@ function SearchSidebar({ onSelectUser }) {
   const handleSearch = async () => {
     try {
       setError('');
-      const { data } = await axios.get(`http://localhost:5000/api/users/search?email=${email}`);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/search?email=${email}`);
       setResult(data);
     } catch (err) {
       setResult(null);

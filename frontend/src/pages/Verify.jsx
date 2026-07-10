@@ -21,7 +21,7 @@ function Verify() {
 
   const handleVerify = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/verify-otp', { email, otp: otpArray.join('') });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, { email, otp: otpArray.join('') });
       navigate('/success');
     } catch (error) {
       alert('Verification Failed');
@@ -31,7 +31,7 @@ function Verify() {
   const handleResend = async () => {
     setResending(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/resend-otp', { email });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/resend-otp`, { email });
       alert('A new code has been sent to your email.');
     } catch (error) {
       alert('Failed to resend. Please try again.');
