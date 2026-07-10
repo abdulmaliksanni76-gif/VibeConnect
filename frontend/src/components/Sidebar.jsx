@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom'; // Grouped imports
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { Search, LogOut, Mic } from 'lucide-react'; 
 import './Sidebar.css';
 import Vibeconnect from '../assets/Vibe Connect-3.png';
 import { formatTimestamp } from '../components/dateUtils';
-import { useParams } from 'react-router-dom';
 import { SocketContext } from '../context/SocketContext';
 
 const Sidebar = () => {

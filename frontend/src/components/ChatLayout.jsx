@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
+// import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/Sidebar';
 import './ChatLayout.css';
 import Vibeconnect from '../assets/Vibe Connect-3.png';
 
