@@ -215,13 +215,16 @@ app.use('/api/chat', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 if (process.env.NODE_ENV === "production") {
-  // Ensure this path points to the correct location of your frontend build
   const frontendPath = path.join(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
 
-  // The '/*' handles the catch-all correctly without the PathError issue
-  app.get("/*", (req, res) => {
-    res.sendFile(path.resolve(frontendPath, "index.html"));
+  // Use a fallback handler that doesn't use the problematic path string
+  app.use((req, res, next) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(frontendPath, "index.html"));
+    } else {
+      next();
+    }
   });
 }
 
