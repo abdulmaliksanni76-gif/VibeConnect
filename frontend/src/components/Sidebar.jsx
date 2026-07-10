@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Search, LogOut } from 'lucide-react'; // Added LogOut
+import { Search, LogOut, Mic } from 'lucide-react'; 
 import './Sidebar.css';
 import Vibeconnect from '../assets/Vibe Connect-3.png';
 import { formatTimestamp } from '../components/dateUtils';
@@ -51,65 +51,25 @@ const Sidebar = () => {
 
   useEffect(() => {
     fetchConversations();
-    window.addEventListener('chat_updated', fetchConversations);
-    if (socket) {
-      socket.on("refresh_sidebar", fetchConversations);
-    }
+    
+    if (!socket) return;
+
+    const refresh = () => fetchConversations();
+
+    socket.on("receive_message", refresh);
+    socket.on("message_updated", refresh);
+    socket.on("message_deleted", refresh);
+    socket.on("refresh_sidebar", refresh);
+    window.addEventListener('chat_updated', refresh);
+
     return () => {
-      window.removeEventListener('chat_updated', fetchConversations);
-      if (socket) socket.off("refresh_sidebar", fetchConversations);
+      socket.off("receive_message", refresh);
+      socket.off("message_updated", refresh);
+      socket.off("message_deleted", refresh);
+      socket.off("refresh_sidebar", refresh);
+      window.removeEventListener('chat_updated', refresh);
     };
   }, [socket]);
-
-    useEffect(() => {
-      if (socket) {
-        socket.on("refresh_sidebar_signal", fetchConversations);
-      }
-      return () => {
-        if (socket) socket.off("refresh_sidebar_signal", fetchConversations);
-      };
-    }, [socket]);
-
-    useEffect(() => {
-  if (!socket) return;
-
-  const handleUpdate = () => {
-    fetchConversations();
-  };
-  socket.on("receive_message", handleUpdate);
-  socket.on("message_updated", handleUpdate);
-  socket.on("message_deleted", handleUpdate);
-  socket.on("refresh_sidebar", handleUpdate);
-
-  window.addEventListener('chat_updated', handleUpdate);
-
-  return () => {
-    socket.off("receive_message", handleUpdate);
-    socket.off("message_updated", handleUpdate);
-    socket.off("message_deleted", handleUpdate);
-    socket.off("refresh_sidebar", handleUpdate);
-    window.removeEventListener('chat_updated', handleUpdate);
-  };
-}, [socket]);
-
-useEffect(() => {
-  if (!socket) return;
-
-  const refresh = () => {
-    fetchConversations();
-  };
-
-  // Listen for the delete signal
-  socket.on("message_deleted", refresh);
-  socket.on("receive_message", refresh);
-  socket.on("message_updated", refresh);
-
-  return () => {
-    socket.off("message_deleted", refresh);
-    socket.off("receive_message", refresh);
-    socket.off("message_updated", refresh);
-  };
-}, [socket]);
   
 
   return (
@@ -148,7 +108,16 @@ useEffect(() => {
                     <h4 className="m-0">{otherParticipant ? otherParticipant.username : "Chat"}</h4>
                     <span className="text-muted small">{formatTimestamp(chat.updatedAt)}</span>
                   </div>
-                  <p className="last-message m-0">{chat.lastMessage || "No messages yet"}</p>
+
+                <p className="last-message m-0">
+                  {chat.lastMessage === "Voice note" ? (
+                    <span className="text-primary"><Mic size={15} /> Voice note</span>
+                  ) : chat.lastMessage === "Image" ? (
+                    <span className="text-secondary">📷 Image</span>
+                  ) : (
+                    chat.lastMessage || "No messages yet"
+                  )}
+                </p>
                 </div>
               </div>
             );

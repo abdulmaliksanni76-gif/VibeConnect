@@ -385,3 +385,105 @@
 .file-doc:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+.mic-btn.recording {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.mic-btn {
+  background: none;
+  border: none;
+  color: #8696a0;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mic-btn:hover {
+  color: #ffffff;
+}
+
+.mic-btn.recording {
+  color: #ff4d4d;
+  animation: pulse-animation 1.5s infinite;
+}
+
+.mic-btn, .plus-btn {
+  flex-shrink: 0; 
+}
+
+@keyframes pulse-animation {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.message-bubble {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border-radius: 10px;
+  max-width: 250px;
+}
+
+.message-bubble.sent {
+  align-self: flex-end;
+  background-color: #5b6af0;
+}
+
+.message-bubble .timestamp {
+  font-size: 10px;
+  margin-top: 4px;
+  align-self: flex-end;
+  opacity: 0.8;
+}
+
+.vn-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 140px; 
+  height: 10px;
+  background: transparent !important;
+}
+
+.vn-btn {
+  background-color: #3f51ef;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 25px;
+}
+
+.vn-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+  width: 130px;
+  margin-top: 25px;
+}
+
+.vn-bar {
+  width: 12px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  transition: height 0.2s;
+}
+

@@ -1,8 +1,11 @@
 import { useContext, useEffect, useState, useRef } from 'react';
 import { SocketContext } from '../context/SocketContext';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, Check, CheckCheck, Edit, Trash2, Plus, Image, FileText, Package, Video, X, Download } from 'lucide-react';
+import { Send, ArrowLeft, Check, CheckCheck, Edit, Trash2, Plus, Image, FileText, Package, Video, X, Download, Mic } from 'lucide-react';
 import './Chat.css';
+import axios from 'axios';
+import AudioPlayer from '../components/AudioPlayer'; // Adjust the path if your file is in a different folder
+import { formatTimestamp } from '../components/dateUtils';
 
 const Chat = () => {
   const socket = useContext(SocketContext);
@@ -20,6 +23,10 @@ const Chat = () => {
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(scrollToBottom, [messages]);
@@ -97,35 +104,42 @@ const deleteMessage = async (messageId) => {
   }, [conversationId, socket]);
 
   useEffect(scrollToBottom, [messages]);
-  
-  const sendMessage = async () => {
-  if (!input.trim()) return;
-  
+
+const sendMessage = async (text = null, fileData = null) => {
   if (editingMessageId) {
     const res = await fetch(`http://localhost:5000/api/chat/message/${editingMessageId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      body: JSON.stringify({ text: input })
+      body: JSON.stringify({ text: text || input })
     });
-    
+
     if (res.ok) {
-    const updatedMsg = { ...messages.find(m => m._id === editingMessageId), text: input };
-    setMessages(prev => prev.map(m => m._id === editingMessageId ? updatedMsg : m));
-    
-    socket.emit("message_updated", updatedMsg);
-    setEditingMessageId(null);
-    window.dispatchEvent(new Event('chat_updated'));
+      const updatedMsg = { ...messages.find(m => m._id === editingMessageId), text: text || input };
+      setMessages(prev => prev.map(m => m._id === editingMessageId ? updatedMsg : m));
+      socket.emit("message_updated", updatedMsg);
+      setEditingMessageId(null);
+      window.dispatchEvent(new Event('chat_updated'));
+      setInput("");
+    }
+    return;
   }
-  } else {
-    await fetch('http://localhost:5000/api/chat/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      body: JSON.stringify({ conversationId, text: input })
-    });
-    window.dispatchEvent(new Event('chat_updated'));
-  }
+
+  const messageData = {
+    conversationId,
+    senderId: localStorage.getItem("userId"),
+    text: text || input,
+    fileUrl: fileData ? fileData.fileUrl : null,
+    fileType: fileData ? fileData.fileType : 'text'
+  };
+
+  if (!messageData.text && !messageData.fileUrl) return;
+
+  socket.emit("send_message", messageData);
+
+  window.dispatchEvent(new Event('chat_updated'));
   setInput("");
 };
+
 
   const otherParticipant = chatData?.participants?.find(p => String(p._id) !== String(localStorage.getItem("userId")));
   const isOnline = onlineUsers.includes(otherParticipant?._id);
@@ -136,20 +150,22 @@ const deleteMessage = async (messageId) => {
     return groups;
   }, {});
 
-
-  const handleFileUpload = async (e) => {
-  const file = e.target.files[0];
+const handleFileUpload = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
-
-  const res = await fetch('http://localhost:5000/api/chat/upload', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-    body: formData
-  });
   
-  const data = await res.json();
-  sendMessageWithFile(data.filePath, file.name);
+  try {
+    const res = await axios.post('http://localhost:5000/api/chat/upload', formData, {
+      headers: { 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data' // Important for file uploads
+      }
+    });
+    
+    await sendMessage(null, { fileUrl: res.data.filePath, fileType: 'audio' });
+  } catch (err) {
+    console.error("Upload failed", err);
+  }
 };
 
 
@@ -202,6 +218,43 @@ const handleFileSelect = async (e) => {
     }
   };
 
+  const startRecording = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mediaRecorder = new MediaRecorder(stream);
+  mediaRecorderRef.current = mediaRecorder;
+  audioChunksRef.current = [];
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) audioChunksRef.current.push(e.data);
+  };
+
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+    const file = new File([audioBlob], "voice-note.webm", { type: 'audio/webm' });
+
+    await handleFileUpload(file); 
+  };
+
+  mediaRecorder.start();
+  setIsRecording(true);
+};
+
+const stopRecording = () => {
+  if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    mediaRecorderRef.current.stop();
+    mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    setIsRecording(false);
+  }
+};
+
+  const uploadVoiceNote = async () => {
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+    const file = new File([audioBlob], "voice-note.wav", { type: 'audio/wav' });
+    
+    const formData = new FormData();
+    formData.append('file', file);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showFileMenu && !event.target.closest('.plus-btn') && !event.target.closest('.file-menu')) {
@@ -239,7 +292,11 @@ const handleFileSelect = async (e) => {
                   
                   {m.fileUrl ? (
                     <div className="media-wrapper">
-                      {m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+                      {m.fileUrl && m.fileType === 'audio' ? (
+                        <div className={`message-bubble ${m.sender === localStorage.getItem("userId") ? 'sent' : 'received'}`}>
+                          <AudioPlayer url={`http://localhost:5000${m.fileUrl.startsWith('/') ? '' : '/'}${m.fileUrl}`} />
+                        </div>
+                      ) : m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
                         <img 
                           src={`http://localhost:5000${m.fileUrl}`} 
                           className="chat-image" 
@@ -292,6 +349,13 @@ const handleFileSelect = async (e) => {
           onClick={(e) => { e.stopPropagation(); setShowFileMenu(!showFileMenu); }}
         >
           <Plus size={24} />
+        </button>
+        <button 
+          className={`mic-btn ${isRecording ? 'recording' : ''}`} 
+          onClick={isRecording ? stopRecording : startRecording}
+          type="button"
+        >
+          {isRecording ? <X size={20} /> : <Mic size={20} />}
         </button>
         
         {showFileMenu && (

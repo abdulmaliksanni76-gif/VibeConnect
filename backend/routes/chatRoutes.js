@@ -31,45 +31,32 @@ router.get('/:chatId', auth, async (req, res) => {
 });
 
 router.post('/send', auth, async (req, res) => {
-    const { conversationId, text } = req.body;
-    const senderId = req.user.id;
-
-    // const newMessage = new Message({ conversationId, sender: senderId, text });
-    // Inside your /send route in chatRoutes.js
-      // const newMessage = new Message({ 
-      //     conversationId, 
-      //     sender: senderId, 
-      //     text, 
-      //     fileUrl: req.body.fileUrl, 
-      //     fileType: req.body.fileType 
-      // });
-      // await newMessage.save();
-
-      const newMessage = new Message({ 
+    const { conversationId, text, fileUrl, fileType } = req.body;
+    
+    const newMessage = new Message({ 
         conversationId, 
-        sender: senderId, 
-        text: req.body.text, 
-        fileUrl: req.body.fileUrl // <--- Make sure this is being saved!
+        sender: req.user.id, 
+        text: text || "", 
+        fileUrl, 
+        fileType 
     });
     await newMessage.save();
 
+    // 2. CRITICAL: Force update the conversation preview text
+    const previewText = fileType === 'audio' ? "Voice note" : 
+                        fileType === 'image' ? "Image" : 
+                        text.length > 30 ? text.substring(0, 30) + "..." : text;
+
     await Conversation.findByIdAndUpdate(conversationId, {
-        lastMessage: text,
-        updatedAt: new Date() // Updates the timestamp for sorting
+        lastMessage: previewText,
+        updatedAt: new Date()
     });
 
-const updatedChat = await Conversation.findByIdAndUpdate(
-    conversationId, 
-    { $set: { lastMessage: text, updatedAt: Date.now() } },
-    { new: true } 
-);
-console.log("Conversation updated:", updatedChat);
-
-    const populatedMessage = await Message.findById(newMessage._id)
-        .populate('sender', 'username');
-
-    const io = req.app.get('io'); 
+    const populatedMessage = await Message.findById(newMessage._id).populate('sender', 'username');
+    const io = req.app.get('io');
+    
     io.to(conversationId).emit("receive_message", populatedMessage);
+    io.emit("refresh_sidebar"); 
 
     res.status(200).json(populatedMessage);
 });
@@ -131,7 +118,7 @@ router.put('/message/:messageId', auth, async (req, res) => {
 
     const io = req.app.get('io');
     io.to(updatedMessage.conversationId).emit("message_updated", updatedMessage);
-    io.to(updatedMessage.conversationId).emit("refresh_sidebar"); // Signal sidebar to refresh
+    io.to(updatedMessage.conversationId).emit("refresh_sidebar"); 
     
     res.json(updatedMessage);
   } catch (err) {
@@ -153,7 +140,7 @@ router.delete('/message/:messageId', auth, async (req, res) => {
 
     const io = req.app.get('io');
     io.to(message.conversationId).emit("message_deleted", req.params.messageId);
-    io.to(message.conversationId).emit("refresh_sidebar"); // Signal sidebar to refresh
+    io.to(message.conversationId).emit("refresh_sidebar"); 
     
     res.status(204).send();
   } catch (err) {
