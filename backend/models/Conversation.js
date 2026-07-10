@@ -5,4 +5,6 @@ const conversationSchema = new mongoose.Schema({
     lastMessage: { type: String, default: "" }, // <--- THIS MUST EXIST
 }, { timestamps: true });
 
-module.exports = mongoose.model('Conversation', conversationSchema);
+// module.exports = mongoose.model('Conversation', conversationSchema);
+const Conversation = mongoose.model('Conversation', conversationSchema);
+export default Conversation;
