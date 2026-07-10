@@ -45,14 +45,6 @@
 .sent-wrapper { justify-content: flex-end; }
 .received-wrapper { justify-content: flex-start; }
 
-.message-bubble {
-  max-width: 60%;
-  padding: 10px 15px;
-  border-radius: 15px;
-  position: relative;
-  color: var(--text-white);
-  font-size: 0.95rem;
-}
 
 .sent {
   background-color: var(--indigo-primary);
@@ -149,4 +141,63 @@
 .status-icon {
   display: flex;
   align-items: center;
+}
+
+.context-menu {
+  position: fixed;
+  background: #1f2937;
+  color: white;
+  border-radius: 8px;
+  padding: 5px 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  min-width: 140px;
+}
+
+.context-menu button {
+  width: 100%;
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.context-menu button:hover {
+  background-color: #374151;
+}
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 8px; 
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  position: relative;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+
+.message-bubble.sent {
+  background-color: #6366f1; 
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px; 
+  width: 37%;
+}
+
+.message-bubble.received {
+  background-color: #374151; 
+  color: white;
+  align-self: flex-start; 
+  border-bottom-left-radius: 2px;
+  width: 37%;
 }

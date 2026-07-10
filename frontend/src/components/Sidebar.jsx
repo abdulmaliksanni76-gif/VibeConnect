@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Search, LogOut } from 'lucide-react'; // Added LogOut
@@ -6,11 +6,13 @@ import './Sidebar.css';
 import Vibeconnect from '../assets/Vibe Connect-3.png';
 import { formatTimestamp } from '../components/dateUtils';
 import { useParams } from 'react-router-dom';
+import { SocketContext } from '../context/SocketContext';
 
 const Sidebar = () => {
   const [conversations, setConversations] = useState([]);
   const navigate = useNavigate();
   const { conversationId } = useParams();
+  const socket = useContext(SocketContext);
 
   const fetchConversations = async () => {
     const token = localStorage.getItem('token');
@@ -50,8 +52,24 @@ const Sidebar = () => {
   useEffect(() => {
     fetchConversations();
     window.addEventListener('chat_updated', fetchConversations);
-    return () => window.removeEventListener('chat_updated', fetchConversations);
-  }, []);
+    if (socket) {
+      socket.on("refresh_sidebar", fetchConversations);
+    }
+    return () => {
+      window.removeEventListener('chat_updated', fetchConversations);
+      if (socket) socket.off("refresh_sidebar", fetchConversations);
+    };
+  }, [socket]);
+
+    useEffect(() => {
+      if (socket) {
+        socket.on("refresh_sidebar_signal", fetchConversations);
+      }
+      return () => {
+        if (socket) socket.off("refresh_sidebar_signal", fetchConversations);
+      };
+    }, [socket]);
+  
 
   return (
     <div className="sidebar-content">

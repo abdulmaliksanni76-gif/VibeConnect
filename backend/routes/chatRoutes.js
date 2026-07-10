@@ -95,4 +95,54 @@ router.get('/info/:conversationId', auth, async (req, res) => {
   }
 });
 
+router.put('/message/:messageId', auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const updatedMessage = await Message.findByIdAndUpdate(
+      req.params.messageId, 
+      { text }, 
+      { new: true }
+    ).populate('sender', 'username');
+
+    const lastMsg = await Message.findOne({ conversationId: updatedMessage.conversationId })
+      .sort({ createdAt: -1 });
+
+    const updatedChat = await Conversation.findByIdAndUpdate(
+      updatedMessage.conversationId,
+      { lastMessage: lastMsg ? lastMsg.text : "No messages yet" },
+      { new: true }
+    );
+
+    const io = req.app.get('io');
+    io.to(updatedMessage.conversationId).emit("message_updated", updatedMessage);
+    io.to(updatedMessage.conversationId).emit("refresh_sidebar"); // Signal sidebar to refresh
+    
+    res.json(updatedMessage);
+  } catch (err) {
+    res.status(500).json({ error: "Update failed" });
+  }
+});
+
+router.delete('/message/:messageId', auth, async (req, res) => {
+  try {
+    const message = await Message.findByIdAndDelete(req.params.messageId);
+    
+    const lastMsg = await Message.findOne({ conversationId: message.conversationId })
+      .sort({ createdAt: -1 });
+
+    await Conversation.findByIdAndUpdate(message.conversationId, {
+      lastMessage: lastMsg ? lastMsg.text : "No messages yet",
+      updatedAt: lastMsg ? lastMsg.createdAt : new Date()
+    });
+
+    const io = req.app.get('io');
+    io.to(message.conversationId).emit("message_deleted", req.params.messageId);
+    io.to(message.conversationId).emit("refresh_sidebar"); // Signal sidebar to refresh
+    
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
+
 module.exports = router;
