@@ -34,7 +34,23 @@ router.post('/send', auth, async (req, res) => {
     const { conversationId, text } = req.body;
     const senderId = req.user.id;
 
-    const newMessage = new Message({ conversationId, sender: senderId, text });
+    // const newMessage = new Message({ conversationId, sender: senderId, text });
+    // Inside your /send route in chatRoutes.js
+      // const newMessage = new Message({ 
+      //     conversationId, 
+      //     sender: senderId, 
+      //     text, 
+      //     fileUrl: req.body.fileUrl, 
+      //     fileType: req.body.fileType 
+      // });
+      // await newMessage.save();
+
+      const newMessage = new Message({ 
+        conversationId, 
+        sender: senderId, 
+        text: req.body.text, 
+        fileUrl: req.body.fileUrl // <--- Make sure this is being saved!
+    });
     await newMessage.save();
 
     await Conversation.findByIdAndUpdate(conversationId, {

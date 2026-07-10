@@ -8,6 +8,7 @@ const Message = require('./models/Message');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -78,6 +79,9 @@ io.on("connection", (socket) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
+// app.use('/api/upload', uploadRoutes);
+app.use('/api/chat', uploadRoutes);
+app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

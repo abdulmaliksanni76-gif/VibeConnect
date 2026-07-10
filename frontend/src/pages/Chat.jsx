@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState, useRef } from 'react';
 import { SocketContext } from '../context/SocketContext';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, Check, CheckCheck, Edit, Trash2 } from 'lucide-react';
+import { Send, ArrowLeft, Check, CheckCheck, Edit, Trash2, Plus, Image, FileText, Package, Video, X, Download } from 'lucide-react';
 import './Chat.css';
 
 const Chat = () => {
@@ -17,6 +17,8 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const longPressTimer = useRef(null);
+  const [showFileMenu, setShowFileMenu] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
@@ -128,6 +130,72 @@ const Chat = () => {
     return groups;
   }, {});
 
+
+  const handleFileUpload = async (e) => {
+  const file = e.target.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('http://localhost:5000/api/chat/upload', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+    body: formData
+  });
+  
+  const data = await res.json();
+  sendMessageWithFile(data.filePath, file.name);
+};
+
+
+const handleFileSelect = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await fetch('http://localhost:5000/api/chat/upload', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      await fetch('http://localhost:5000/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ 
+          conversationId, 
+          text: file.name, 
+          fileUrl: data.filePath 
+        })
+      });
+      window.dispatchEvent(new Event('chat_updated'));
+      setShowFileMenu(false); 
+    }
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
+
+  const downloadFile = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'downloaded-file'; 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download failed", error);
+    }
+  };
+
   return (
     <div className="chat-app-container" onClick={() => setMenu({ ...menu, visible: false })}>
       <div className="chat-header">
@@ -151,7 +219,17 @@ const Chat = () => {
                 className={`message-wrapper ${m.sender.username === localStorage.getItem("username") ? 'sent-wrapper' : 'received-wrapper'}`}
               >
                 <div className={`message-bubble ${m.sender.username === localStorage.getItem("username") ? 'sent' : 'received'}`}>
-                  <p className="m-0">{m.text}</p>
+                  
+                  {m.fileUrl ? (
+                    <img 
+                      src={`http://localhost:5000${m.fileUrl}`} 
+                      alt="attachment" 
+                      className="chat-image"
+                      onClick={() => setSelectedImage(`http://localhost:5000${m.fileUrl}`)}
+                    />
+                  ) : (
+                    <p className="m-0">{m.text}</p>
+                  )}
                   <div className="msg-footer">
                     <span className="msg-time">
                         {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -176,9 +254,44 @@ const Chat = () => {
           <button onClick={() => deleteMessage(menu.messageId)}><Trash2 size={16}/> Delete</button>
         </div>
       )}
-
       <div className="input-area">
-        <input ref={inputRef} type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message..." onKeyDown={(e) => e.key === 'Enter' && sendMessage()} />
+        <button 
+          className="plus-btn" 
+          onClick={(e) => { e.stopPropagation(); setShowFileMenu(!showFileMenu); }}
+        >
+          <Plus size={24} />
+        </button>
+        
+        {showFileMenu && (
+          <div className="file-menu" onClick={(e) => e.stopPropagation()}>
+            <label><Image size={20}/> Photos & Videos <input type="file" accept="image/*,video/*" hidden onChange={handleFileSelect} /></label>
+            <label><FileText size={20}/> Document <input type="file" accept=".pdf,.doc,.docx" hidden onChange={handleFileSelect} /></label>
+            <label><Package size={20}/> APK / Other <input type="file" accept=".apk,.zip" hidden onChange={handleFileSelect} /></label>
+          </div>
+        )}
+
+        {selectedImage && (
+        <div className="lightbox">
+          <div className="lightbox-controls">
+            <button className="lightbox-btn" onClick={() => downloadFile(selectedImage)}>
+              <Download size={20} />
+            </button>
+            <button className="lightbox-btn" onClick={() => setSelectedImage(null)}>
+              <X size={20} />
+            </button>
+          </div>
+          <img src={selectedImage} alt="Full view" style={{ maxWidth: '90%', maxHeight: '80%' }} />
+        </div>
+      )}
+
+        <input 
+          ref={inputRef} 
+          type="text" 
+          value={input} 
+          onChange={(e) => setInput(e.target.value)} 
+          placeholder="Type a message..." 
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()} 
+        />
         <button onClick={sendMessage} className="send-btn"><Send size={20} /></button>
       </div>
     </div>
